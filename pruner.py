@@ -17,8 +17,7 @@ import dns.exception
 def fetch_url(url):
     """Naive URL fetch."""
     fp = urllib.request.urlopen(url)
-    s = fp.read().decode("utf8")
-    return s
+    return fp.read().decode("utf8")
 
 
 @functools.lru_cache()
@@ -43,10 +42,7 @@ def is_working_email_domain(domain):
             dns.resolver.NoNameservers,
             dns.exception.Timeout):
         return False
-    mxs = [x.to_text() for x in mx_records]
-    if mxs:
-        return True
-    return False
+    return bool(mxs := [x.to_text() for x in mx_records])
 
 
 def prune():
@@ -59,7 +55,7 @@ def prune():
             to_remove.append(domain)
 
     new_list = [x for x in burner_domains if x not in to_remove]
-    print('Removed %s old domains, new valid list:' % len(to_remove))
+    print(f'Removed {len(to_remove)} old domains, new valid list:')
     print()
     print('\n'.join(new_list))
 
